@@ -1,0 +1,41 @@
+EJERCICIO 11: Modificación Incompatible y Versionado de APIs
+Un equipo tiene desplegada la versión 1 de su API con la siguiente estructura de respuesta en GET /api/v1/tareas/15:
+// Respuesta Versión 1
+{
+  "data": {
+    "id": 15,
+    "titulo": "Preparar TP",
+    "prioridad": "alta"
+  }
+}
+Para la nueva entrega, deciden renombrar la propiedad prioridad a nivelPrioridad y mover el id dentro de un subobjeto metadata.
+Preguntas:
+1. ¿Por qué este cambio constituye una "modificación breaking" (incompatible) para las aplicaciones cliente (frontend/mobile) existentes?
+2. ¿Cómo se debe estructurar la URL del nuevo endpoint según las buenas prácticas de versionado de APIs explicadas en la unidad?
+
+1. Este cambio rompe el contrato existente con los clientes (frontend, apps móviles, otros servicios) 
+por dos razones fundamentales:
+
+· Rotura de rutas de acceso a propiedades (Property Access Failure): Si una aplicación cliente esperaba
+leer la propiedad con response.data.prioridad, ahora obtendrá undefined porque fue renombrada a 
+nivelPrioridad. Lo mismo ocurre con id, que al ser trasladado a un subobjeto (response.data.metadata.id), 
+dejará de encontrarse en la ruta raíz donde el cliente lo buscaba.
+
+· Falta de retrocompatibilidad (Backward Incompatibility): Al modificar la estructura JSON sin 
+mantener la anterior, cualquier cliente desplegado en producción que dependa del formato antiguo 
+fallará inmediatamente al intentar procesar la nueva respuesta (causando errores de renderizado o 
+excepciones en el código del cliente).
+
+2. Según las mejores prácticas de versionado de APIs en arquitecturas REST, cuando se 
+introduce un cambio incompatible (breaking change), se debe crear una nueva versión de 
+la API en la ruta (URL Path Versioning), manteniendo la versión anterior operativa para no 
+romper a los clientes actuales.
+
+La nueva URL debe estructurarse incrementando el número de versión en el prefijo:
+
+Versión antigua: GET /api/v1/tareas/15
+
+Nueva versión (Modificada): GET /api/v2/tareas/15
+
+De esta manera, la versión v1 sigue respondiendo con el formato original para los clientes antiguos, 
+mientras que los nuevos clientes pueden migrar de forma ordenada y segura consumiendo la versión v2.

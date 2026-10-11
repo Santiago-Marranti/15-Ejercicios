@@ -1,0 +1,35 @@
+1. ¿Qué función cumple la opción -i en el comando curl?
+
+La opción -i (o --include) le indica a curl que incluya los encabezados (headers) de la respuesta HTTP 
+en la salida de la terminal, justo antes del cuerpo (body) de la respuesta.
+
+Esto es muy útil al probar APIs porque permite verificar visualmente:
+
+El código de estado HTTP real (ej. 201 Created o 422 Unprocessable Entity).
+
+Los encabezados devueltos por el servidor (como el encabezado Location que vimos antes o el Content-Type).
+
+2. ¿Qué ocurre si se omite el encabezado -H "Content-Type: application/json" cuando el backend 
+utiliza el middleware express.json()? ¿Qué valor tendrá req.body?
+
+El middleware express.json() en Express está diseñado para inspeccionar el encabezado Content-Type 
+de las peticiones entrantes y solo parsear aquellas que coincidan explícitamente con application/json.
+
+Comportamiento: Si el cliente omite ese encabezado, curl no enviará la especificación del tipo de
+contenido (o enviará uno por defecto que no es JSON). 
+El middleware express.json() de tu backend ignorará el cuerpo de la petición por completo al 
+no reconocerlo como un formato válido para él.
+
+Valor de req.body: Como resultado, Express no podrá transformar los datos enviados en un objeto 
+JavaScript legible, por lo que req.body será un objeto vacío ({}) (o undefined dependiendo de la 
+configuración), provocando que las validaciones fallen por faltar los campos requeridos 
+(titulo y prioridad).
+
+
+
+curl -i \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"titulo":"Estudiar API","prioridad":"alta"}' \
+  http://localhost:3000/api/v1/tareas
+

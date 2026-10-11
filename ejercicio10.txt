@@ -1,0 +1,81 @@
+EJERCICIO 10: Especificación OpenAPI (YAML) y Contratos
+
+Preguntas:
+
+1. Según este contrato OpenAPI, ¿qué respuesta debe retornar la API si un cliente envía el 
+JSON {"titulo": "A", "prioridad": "urgente"}? Indique el código de estado HTTP y la causa.
+
+Respuesta esperada ante el JSON {"titulo": "A", "prioridad": "urgente"}
+
+· Código de estado HTTP: 422 (Datos inválidos / Unprocessable Entity), 
+tal como está definido en el contrato OpenAPI.
+
+· Causa del error: El cuerpo enviado incumple dos de las reglas de validación establecidas en el esquema:
+
+- Incumplimiento de longitud mínima: El campo titulo tiene el valor "A", cuya longitud es 1, 
+violando la regla minLength: 3.
+
+- Incumplimiento de enumeración: El campo prioridad tiene el valor "urgente", el cual no se 
+encuentra permitido dentro del conjunto cerrado definido en el enum: [baja, media, alta].
+
+2. ¿Qué diferencia fundamental existe entre OpenAPI y Swagger? 
+
+Diferencia fundamental entre OpenAPI y Swagger
+
+· OpenAPI es la especificación (el estándar): Es un formato de descripción de APIs REST 
+independiente del lenguaje, escrito en JSON o YAML, que define cómo se estructuran los endpoints, 
+parámetros, esquemas de datos y respuestas. Es mantenido por la 
+OpenAPI Initiative (bajo la Linux Foundation).
+
+· Swagger es el conjunto de herramientas (las tools): Es el nombre comercial de la suite de software
+desarrollada originalmente (y mantenida por SmartBear) para implementar, visualizar y trabajar con 
+la especificación OpenAPI (por ejemplo, Swagger UI para generar la interfaz gráfica interactiva o 
+Swagger Editor para redactar los archivos).
+
+// Contrato:
+
+paths:
+
+  /tareas:
+
+    post:
+
+      summary: Crear una tarea
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+
+              type: object
+
+              required: [titulo, prioridad]
+
+              properties:
+
+                titulo:
+
+                  type: string
+
+                  minLength: 3
+
+                prioridad:
+
+                  type: string
+
+                  enum: [baja, media, alta]
+
+      responses:
+
+        "201":
+
+          description: Tarea creada
+
+        "422":
+
+          description: Datos inválidos
